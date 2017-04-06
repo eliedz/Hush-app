@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
         songList = new ArrayList<Song>();
         songView = (ListView)findViewById(R.id.song_list);
-
+        Log.i("HALLO", "SFOIN");
         Dexter.withActivity(this)
         .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
         .withListener(new PermissionListener() {
