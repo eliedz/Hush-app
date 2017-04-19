@@ -8,37 +8,59 @@
     android:onClick="songPicked">
 
     <ImageView
+        tools:ignore="contentDescription"
         android:layout_width="70dp"
         android:layout_height="match_parent"
         android:src= "@drawable/fallback_cover"/>
 
-    <LinearLayout
-        android:id="@+id/song"
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:padding="5dp">
+        <RelativeLayout
+            android:id="@+id/song"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:padding="5dp">
+            <TextView
+                android:id="@+id/song_title"
+                android:layout_width="220dp"
+                android:layout_height="25dp"
+                android:fontFamily="sans-serif-condensed"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@android:color/black"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:text="@string/Test_Song_Name" />
 
-        <TextView
-            android:id="@+id/song_title"
-            android:layout_width="300dp"
-            android:layout_height="25dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="@android:color/black"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:text="Test Song Name which is verry long and that is on purpose" />
+            <Button
+                android:id="@+id/add_to_playlist"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:textColor="@android:color/black"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:layout_centerHorizontal="true"
+                android:bottomRightRadius="64dp"
+                android:bottomLeftRadius="64dp"
+                android:topRightRadius="64dp"
+                android:topLeftRadius="64dp"
+                android:onClick="addToPlaylist"
+                android:textStyle="bold"
+                android:background="?android:attr/selectableItemBackground"
+                android:textSize="20sp"
+                android:textColorLink="@color/white"
+                android:text="@string/add_to_playlist" />
 
-        <TextView
-            android:id="@+id/song_artist"
-            android:layout_width="fill_parent"
-            android:layout_height="25dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="?android:attr/textColorSecondary"
-            android:textSize="18sp"
-            android:text="Test Artist Name" />
-
+            <TextView
+                android:id="@+id/song_artist"
+                android:layout_width="220dp"
+                android:layout_height="50dp"
+                android:layout_below="@id/song_title"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textStyle="italic"
+                android:fontFamily="sans-serif-condensed"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="18sp"
+                android:text="@string/Test_Artist_Name" />
+            </RelativeLayout>
     </LinearLayout>
-</LinearLayout>

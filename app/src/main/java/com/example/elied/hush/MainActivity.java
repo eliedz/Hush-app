@@ -1,6 +1,7 @@
 package com.example.elied.hush;
 
 import android.Manifest;
+import android.app.Fragment;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
@@ -48,7 +49,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
         songList = new ArrayList<Song>();
         songView = (ListView)findViewById(R.id.song_list);
-        Log.i("HALLO", "SFOIN");
         Dexter.withActivity(this)
         .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
         .withListener(new PermissionListener() {
@@ -63,10 +63,18 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {/* ... */}
         }).check();
 
-        TrackAdapter songAdt = new TrackAdapter(this, songList);
+        TrackAdapter songAdt = new TrackAdapter(this,this, songList);
         songView.setAdapter(songAdt);
         setController();
     }
+
+    @Override
+    public void onBackPressed() {
+        if (!getFragmentManager().popBackStackImmediate()){
+            super.onBackPressed();
+        }
+    }
+
 
     @Override
     protected void onStart() {
@@ -103,6 +111,10 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             playbackPaused=false;
         }
         musicSrv.playSong();
+    }
+
+    public void addToPlaylist(View view){
+
     }
 
     @Override
@@ -149,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         }
     }
 
-    private void setController(){
+    public void setController(){
         controller = new MusicController(this);
         controller.setPrevNextListeners(new View.OnClickListener() {
             @Override
@@ -167,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         controller.setEnabled(true);
     }
 
-    private void playNext(){
+    public void playNext(){
         musicSrv.playNext();
         if(playbackPaused){
             setController();
@@ -176,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         controller.show(0);
     }
 
-    private void playPrev(){
+    public void playPrev(){
         musicSrv.playPrev();
         if(playbackPaused){
             setController();
