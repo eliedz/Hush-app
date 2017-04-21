@@ -3,11 +3,13 @@ package com.example.elied.hush;
 
 import android.os.Bundle;
 import android.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
@@ -20,9 +22,10 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
     private TextView mSongArtist;
     private TextView mSongTitle;
     private ImageButton mBack;
-    private Button mPause;
-    private Button mPlay;
-    private Button mPrev;
+    private ImageButton mPause;
+    private ImageButton mPlay;
+    private ImageButton mPrev;
+    private ImageButton mNext;
 
 
 
@@ -46,9 +49,11 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
         mSongArtist.setText(mSong.getArtist());
         mSongTitle.setText(mSong.getTitle());
 
-        mPause = (Button)v.findViewById(R.id.pause);
-        mPlay = (Button) v.findViewById(R.id.play);
+        mPause = (ImageButton)v.findViewById(R.id.pause);
+        mPlay = (ImageButton) v.findViewById(R.id.play);
         mBack = (ImageButton) v.findViewById(R.id.hide_button);
+        mPrev = (ImageButton) v.findViewById(R.id.prev);
+        mNext = (ImageButton) v.findViewById(R.id.next);
 
         mPlay.setOnClickListener(this);
         mBack.setOnClickListener(this);
@@ -62,7 +67,11 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.pause:
+                Log.e("=========>","pause Clicked");
+                togglePlay();
+                break;
             case R.id.play:
+                Log.e("=========>","play Clicked");
                 togglePlay();
                 break;
             case R.id.hide_button:
@@ -73,14 +82,24 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
 
     public void togglePlay()
     {
-        if(((MainActivity)getActivity()).isPlaying()) {
+        if(!((MainActivity)getActivity()).isPlaying()) {
+            Log.e("============>","isPlaying false");
             mPause.setVisibility(View.VISIBLE);
             mPlay.setVisibility(View.GONE);
-            ((MainActivity)getActivity()).pause();
+            // Change alignment to newly visible icon
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)mNext.getLayoutParams();
+            params.addRule(RelativeLayout.ALIGN_BOTTOM,R.id.pause);
+            params.addRule(RelativeLayout.ALIGN_BASELINE,R.id.pause);
+            mNext.setLayoutParams(params);
+            ((MainActivity)getActivity()).start();
         } else {
             mPause.setVisibility(View.GONE);
             mPlay.setVisibility(View.VISIBLE);
-            ((MainActivity)getActivity()).start();
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)mNext.getLayoutParams();
+            params.addRule(RelativeLayout.ALIGN_BOTTOM,R.id.play);
+            params.addRule(RelativeLayout.ALIGN_BASELINE,R.id.play);
+            mNext.setLayoutParams(params);
+            ((MainActivity)getActivity()).pause();
         }
     }
 }

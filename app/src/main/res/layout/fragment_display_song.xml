@@ -1,7 +1,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@color/white"
+    android:background="@android:color/darker_gray"
     android:layout_height="match_parent"
     android:clickable="true"
     tools:context="com.example.elied.hush.DisplaySongFragment">
@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-condensed"
-            android:ellipsize="end"
+            android:ellipsize="marquee"
             android:maxLines="1"
             android:textColor="@android:color/black"
             android:textSize="20sp"
@@ -52,7 +52,7 @@
             android:layout_below="@+id/song_title"
             android:layout_centerHorizontal="true" />
 
-        <Button
+        <ImageButton
             android:id="@+id/pause"
             android:visibility="visible"
             android:layout_width="wrap_content"
@@ -62,10 +62,10 @@
             android:layout_below="@+id/song_artist"
             android:layout_centerHorizontal="true"
             android:background="?android:attr/selectableItemBackground"
-            android:text="@string/pause"
+            android:src='@drawable/pause'
             android:textStyle="bold"/>
 
-        <Button
+        <ImageButton
             android:id="@+id/play"
             android:visibility="gone"
             android:layout_width="wrap_content"
@@ -75,10 +75,10 @@
             android:layout_below="@+id/song_artist"
             android:layout_centerHorizontal="true"
             android:background="?android:attr/selectableItemBackground"
-            android:text="@string/play"
+            android:src="@drawable/play"
             android:textStyle="bold"/>
 
-        <Button
+        <ImageButton
             android:id="@+id/next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -89,17 +89,16 @@
             android:layout_alignBottom="@+id/pause"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginRight="19dp"
-            android:layout_marginEnd="19dp"
-            android:text="@string/next"
+            android:layout_marginRight="20dp"
+            android:layout_marginEnd="20dp"
+            android:src="@drawable/next"
             android:textStyle="bold"/>
 
-        <Button
+        <ImageButton
             android:id="@+id/prev"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
-            android:onClick="playPrevious"
             android:layout_alignBaseline="@+id/next"
             android:layout_alignBottom="@+id/next"
             android:layout_alignParentLeft="true"
@@ -107,7 +106,7 @@
             android:background="?android:attr/selectableItemBackground"
             android:layout_marginLeft="20dp"
             android:layout_marginStart="20dp"
-            android:text="@string/prev"
+            android:src="@drawable/previous"
             android:textStyle="bold"/>
 
         <ImageButton
