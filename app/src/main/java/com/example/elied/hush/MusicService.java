@@ -47,12 +47,11 @@ public class MusicService extends IntentService implements
     private String songArtist="";
     private static final int NOTIFY_ID=1;
     private NotificationCompat.Builder notif;
-    private PendingIntent prevIntent, nextIntent, pauseIntent, playIntent, pendIntent, middleIntent;
+    private PendingIntent pauseIntent, playIntent, middleIntent;
     private int middleDrawable;
     NotificationManager mNotificationManager;
 
     private Activity boundActivity;
-
 
     public MusicService(){
 
@@ -72,6 +71,9 @@ public class MusicService extends IntentService implements
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if(intent != null) {
+            onHandleIntent(intent);
+        }
         return START_STICKY;
     }
 
@@ -141,6 +143,7 @@ public class MusicService extends IntentService implements
     }
 
     public void pausePlayer(){
+        syncButtons(false);
         player.pause();
     }
 
@@ -149,6 +152,7 @@ public class MusicService extends IntentService implements
     }
 
     public void start(){
+        syncButtons(true);
         player.start();
     }
 
@@ -191,23 +195,23 @@ public class MusicService extends IntentService implements
         mp.start();
 
         Intent notIntent = new Intent(this, MainActivity.class);
-         pendIntent = PendingIntent.getActivity(this, 5,notIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendIntent = PendingIntent.getActivity(this, 5,notIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent previousInt = new Intent(this,MusicService.class);
         previousInt.putExtra("action","prev");
-         prevIntent = PendingIntent.getService(this,4,previousInt,PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent prevIntent = PendingIntent.getService(this,4,previousInt,PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent nextInt = new Intent(this,MusicService.class);
         nextInt.putExtra("action","next");
-         nextIntent = PendingIntent.getService(this,3,nextInt,PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent nextIntent = PendingIntent.getService(this,3,nextInt,PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent pauseInt = new Intent(this,MusicService.class);
         pauseInt.putExtra("action","pause");
-         pauseIntent = PendingIntent.getService(this,2,pauseInt,PendingIntent.FLAG_UPDATE_CURRENT);
+        pauseIntent = PendingIntent.getService(this,2,pauseInt,PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent playInt = new Intent(this,MusicService.class);
         playInt.putExtra("action","play");
-         playIntent = PendingIntent.getService(this,1,playInt,PendingIntent.FLAG_UPDATE_CURRENT);
+        playIntent = PendingIntent.getService(this,1,playInt,PendingIntent.FLAG_UPDATE_CURRENT);
 
         middleIntent = pauseIntent;
         middleDrawable = R.drawable.pause;
@@ -224,7 +228,6 @@ public class MusicService extends IntentService implements
                 .addAction(R.drawable.previous, "Previous", prevIntent ) // #0
                 .addAction(middleDrawable, "Pause", middleIntent)  // #1
                 .addAction(R.drawable.next, "Next", nextIntent);     // #2
-
         startForeground(NOTIFY_ID, notif.build());
     }
 
@@ -254,37 +257,51 @@ public class MusicService extends IntentService implements
         if( intent.getStringExtra("action") != null ) {
             if (intent.getStringExtra("action").equals("prev")) {
                 Log.e("======>","playing Prev");
+                //((MainActivity)boundActivity).notificationPlay();
                 playPrev();
             } else {
                 if (intent.getStringExtra("action").equals("next")) {
                     Log.e("======>","playing Next");
+                    //((MainActivity)boundActivity).notificationPlay();
                     playNext();
                 } else {
                     if(intent.getStringExtra("action").equals("pause")) {
                         Log.e("======>", "pausing");
-                        middleIntent = playIntent;
-                        middleDrawable = R.drawable.play;
-                        notif.mActions.set(1,new NotificationCompat.Action(middleDrawable,"Pause",middleIntent));
-                        notif.setAutoCancel(true)
-                           .setOngoing(false);
-                        //stopForeground(false);
-                        //mNotificationManager.notify(NOTIFY_ID, notif.build());
-                        startForeground(NOTIFY_ID,notif.build());
+                        //((MainActivity)boundActivity).notificationPause();
                         pausePlayer();
                     } else {
                         Log.e("=======>","else");
-                        middleIntent = pauseIntent;
-                        middleDrawable = R.drawable.pause;
-                        notif.mActions.set(1,new NotificationCompat.Action(middleDrawable,"Pause",middleIntent));
-                        notif.setOngoing(true)
-                           .setAutoCancel(false);
-                        startForeground(NOTIFY_ID, notif.build());
+                        //((MainActivity)boundActivity).notificationPlay();
                         start();
                     }
                 }
             }
         } else {
             Log.e("=======>","action is null");
+        }
+    }
+
+    public void setBoundActivity(Activity boundActivity){
+        this.boundActivity = boundActivity;
+    }
+
+    public void syncButtons(boolean playing){
+        if(playing){
+            middleIntent = pauseIntent;
+            middleDrawable = R.drawable.pause;
+            notif.mActions.set(1,new NotificationCompat.Action(middleDrawable,"Pause",middleIntent));
+            notif.setOngoing(true)
+                    .setAutoCancel(false);
+            startForeground(NOTIFY_ID, notif.build());
+        } else {
+            middleIntent = playIntent;
+            middleDrawable = R.drawable.play;
+            notif.mActions.set(1,new NotificationCompat.Action(middleDrawable,"Pause",middleIntent));
+            notif.setAutoCancel(true)
+                    .setOngoing(false);
+            //stopForeground(false);
+            //mNotificationManager.notify(NOTIFY_ID, notif.build());
+            startForeground(NOTIFY_ID,notif.build());
         }
     }
 

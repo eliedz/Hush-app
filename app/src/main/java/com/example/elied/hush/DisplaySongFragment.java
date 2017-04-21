@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -26,6 +25,7 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
     private ImageButton mPlay;
     private ImageButton mPrev;
     private ImageButton mNext;
+    private boolean fragmentStart = true;
 
 
 
@@ -79,14 +79,14 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
             case R.id.next:
                 Log.e("======>","next Clicked");
                 ((MainActivity)getActivity()).playNext();
-                mSongArtist.setText(((MainActivity) getActivity()).getMusicSrv().getSongArtist());
-                mSongTitle.setText(((MainActivity) getActivity()).getMusicSrv().getSongTitle());
+                updateSong();
+                syncButtons(true);
                 break;
             case R.id.prev:
                 Log.e("=======>","prev Clicked");
                 ((MainActivity)getActivity()).playPrev();
-                mSongArtist.setText(((MainActivity) getActivity()).getMusicSrv().getSongArtist());
-                mSongTitle.setText(((MainActivity) getActivity()).getMusicSrv().getSongTitle());
+                updateSong();
+                syncButtons(true);
                 break;
             case R.id.hide_button:
                 getFragmentManager().popBackStackImmediate();
@@ -98,6 +98,16 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
     {
         if(!((MainActivity)getActivity()).isPlaying()) {
             Log.e("============>","isPlaying false");
+            syncButtons(true);
+            ((MainActivity)getActivity()).start();
+        } else {
+            syncButtons(false);
+            ((MainActivity)getActivity()).pause();
+        }
+    }
+
+    public void syncButtons(boolean play){
+        if(play){
             mPause.setVisibility(View.VISIBLE);
             mPlay.setVisibility(View.GONE);
             // Change alignment to newly visible icon
@@ -105,7 +115,6 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
             params.addRule(RelativeLayout.ALIGN_BOTTOM,R.id.pause);
             params.addRule(RelativeLayout.ALIGN_BASELINE,R.id.pause);
             mNext.setLayoutParams(params);
-            ((MainActivity)getActivity()).start();
         } else {
             mPause.setVisibility(View.GONE);
             mPlay.setVisibility(View.VISIBLE);
@@ -113,8 +122,28 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
             params.addRule(RelativeLayout.ALIGN_BOTTOM,R.id.play);
             params.addRule(RelativeLayout.ALIGN_BASELINE,R.id.play);
             mNext.setLayoutParams(params);
-            ((MainActivity)getActivity()).pause();
         }
+    }
+
+    public void updateSong(){
+        mSongArtist.setText(((MainActivity) getActivity()).getMusicSrv().getSongArtist());
+        mSongTitle.setText(((MainActivity) getActivity()).getMusicSrv().getSongTitle());
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        Log.e("=====>","Fragment Resume");
+        if(!fragmentStart) {
+            updateSong();
+            if (((MainActivity) getActivity()).getMusicSrv().isPlaying()) {
+                syncButtons(true);
+            } else {
+                syncButtons(false
+                );
+            }
+        }
+        fragmentStart = false;
     }
 
    // @Override

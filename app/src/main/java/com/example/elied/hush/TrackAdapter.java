@@ -59,15 +59,16 @@ public class TrackAdapter extends android.widget.BaseAdapter {
         songLay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((MainActivity)activity).songPicked(v);
-                DisplaySongFragment fr = new DisplaySongFragment(); // create new instance of fragment you want to open
-                Bundle args = new Bundle(); // create new bundle to pass data to the fragment
-                args.putSerializable("song", currentSong); // pass desired song into bundle
-                fr.setArguments(args); // set data bundle as an argument for fragment
-                FragmentManager fm = activity.getFragmentManager(); // get fragment manager
-                FragmentTransaction fragmentTransaction = fm.beginTransaction(); // create a new transaction to a fragment
-                fragmentTransaction.replace(R.id.fragment_place, fr); // allocate a frame layout for fragment to reside in
-                fragmentTransaction.commit(); // apply changes
+                ((MainActivity)activity).songPicked(v,currentSong);
+                //((MainActivity)activity).inflateFragment(currentSong);
+//                DisplaySongFragment fr = new DisplaySongFragment(); // create new instance of fragment you want to open
+//                Bundle args = new Bundle(); // create new bundle to pass data to the fragment
+//                args.putSerializable("song", currentSong); // pass desired song into bundle
+//                fr.setArguments(args); // set data bundle as an argument for fragment
+//                FragmentManager fm = activity.getFragmentManager(); // get fragment manager
+//                FragmentTransaction fragmentTransaction = fm.beginTransaction(); // create a new transaction to a fragment
+//                fragmentTransaction.replace(R.id.fragment_place, fr); // allocate a frame layout for fragment to reside in
+//                fragmentTransaction.commit(); // apply changes
             }
         });
         return songLay;

@@ -1,7 +1,10 @@
 package com.example.elied.hush;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
@@ -45,13 +48,14 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     private boolean musicBound=false;
     private MusicController controller;
     private boolean paused=false, playbackPaused=false;
+    private Activity instance;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        instance = this;
         songList = new ArrayList<Song>();
         songView = (ListView)findViewById(R.id.song_list);
         Dexter.withActivity(this)
@@ -95,6 +99,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         public void onServiceConnected(ComponentName name, IBinder service) {
             MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
             musicSrv = binder.getService();
+            musicSrv.setBoundActivity(instance);
             musicSrv.setList(songList);
             musicBound = true;
         }
@@ -106,13 +111,24 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         }
     };
 
-    public void songPicked(View view){
+    public void inflateFragment(Song currentSong){
+        DisplaySongFragment fr = new DisplaySongFragment(); // create new instance of fragment you want to open
+        Bundle args = new Bundle(); // create new bundle to pass data to the fragment
+        args.putSerializable("song", currentSong); // pass desired song into bundle
+        fr.setArguments(args); // set data bundle as an argument for fragment
+        FragmentManager fm = instance.getFragmentManager(); // get fragment manager
+        FragmentTransaction fragmentTransaction = fm.beginTransaction(); // create a new transaction to a fragment
+        fragmentTransaction.replace(R.id.fragment_place, fr); // allocate a frame layout for fragment to reside in
+        fragmentTransaction.commit(); // apply changes
+    }
+
+    public void songPicked(View view, Song currentSong){
         musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
         if(playbackPaused){
-            controller.show(0);
             playbackPaused=false;
         }
         musicSrv.playSong();
+        inflateFragment(currentSong);
     }
 
     public void addToPlaylist(View view){
@@ -136,6 +152,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             case R.id.action_end:
                 if(musicConnection != null){
                     unbindService(musicConnection);
+                    musicSrv.setBoundActivity(null);
                 }
                 musicSrv=null;
                 System.exit(0);
@@ -202,6 +219,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             musicSrv.stopSelf();
         }
         unbindService(musicConnection);
+        musicSrv.setBoundActivity(null);
         super.onDestroy();
     }
 
@@ -246,6 +264,22 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         }
         return false;
     }
+
+    public void notificationPause(){
+        if(instance.getFragmentManager().findFragmentById(R.id.fragment_place) != null) {
+            ((DisplaySongFragment) instance.getFragmentManager().findFragmentById(R.id.fragment_place)).syncButtons(false);
+        }
+    }
+
+    public void notificationPlay(){
+        if(instance.getFragmentManager().findFragmentById(R.id.fragment_place) != null) {
+            ((DisplaySongFragment) instance.getFragmentManager().findFragmentById(R.id.fragment_place)).syncButtons(true);
+            ((DisplaySongFragment) instance.getFragmentManager().findFragmentById(R.id.fragment_place)).updateSong();
+        }
+    }
+
+
+
 
 //    @Override
 //    protected void onNewIntent(Intent intent) {
