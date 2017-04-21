@@ -299,9 +299,9 @@ public class MusicService extends IntentService implements
             notif.mActions.set(1,new NotificationCompat.Action(middleDrawable,"Pause",middleIntent));
             notif.setAutoCancel(true)
                     .setOngoing(false);
-            //stopForeground(false);
-            //mNotificationManager.notify(NOTIFY_ID, notif.build());
-            startForeground(NOTIFY_ID,notif.build());
+            stopForeground(false);
+            mNotificationManager.notify(NOTIFY_ID, notif.build());
+            //startForeground(NOTIFY_ID,notif.build());
         }
     }
 

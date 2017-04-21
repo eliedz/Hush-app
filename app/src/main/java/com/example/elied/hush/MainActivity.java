@@ -119,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         FragmentManager fm = instance.getFragmentManager(); // get fragment manager
         FragmentTransaction fragmentTransaction = fm.beginTransaction(); // create a new transaction to a fragment
         fragmentTransaction.replace(R.id.fragment_place, fr); // allocate a frame layout for fragment to reside in
+        fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit(); // apply changes
     }
 
