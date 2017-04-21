@@ -3,15 +3,14 @@ package com.example.elied.hush;
 
 import java.util.ArrayList;
 
+import android.app.Activity;
 import android.app.IntentService;
 import android.app.NotificationManager;
-import android.app.Service;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.audiofx.LoudnessEnhancer;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
@@ -21,7 +20,7 @@ import android.util.Log;
 
 import java.util.LinkedList;
 import java.util.Random;
-import android.app.Notification;
+
 import android.app.PendingIntent;
 
 public class MusicService extends IntentService implements
@@ -35,13 +34,24 @@ public class MusicService extends IntentService implements
     private final IBinder musicBind = new MusicBinder();
     private boolean shuffle=false;
     private Random rand;
+
+    public String getSongTitle() {
+        return songTitle;
+    }
+
+    public String getSongArtist() {
+        return songArtist;
+    }
+
     private String songTitle="";
     private String songArtist="";
     private static final int NOTIFY_ID=1;
-    private NotificationCompat.Builder not;
+    private NotificationCompat.Builder notif;
     private PendingIntent prevIntent, nextIntent, pauseIntent, playIntent, pendIntent, middleIntent;
     private int middleDrawable;
     NotificationManager mNotificationManager;
+
+    private Activity boundActivity;
 
 
     public MusicService(){
@@ -58,6 +68,11 @@ public class MusicService extends IntentService implements
         queuePos = 0;
         player = new MediaPlayer();
         initMusicPlayer();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return START_STICKY;
     }
 
     public void setShuffle(){
@@ -91,7 +106,7 @@ public class MusicService extends IntentService implements
 
     @Override
     public boolean onUnbind(Intent intent){
-        player.release();
+        //player.release();
         return false;
     }
 
@@ -197,7 +212,7 @@ public class MusicService extends IntentService implements
         middleIntent = pauseIntent;
         middleDrawable = R.drawable.pause;
 
-        not = new NotificationCompat.Builder(this)
+        notif = new NotificationCompat.Builder(this)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setContentIntent(pendIntent)
                 .setSmallIcon(R.drawable.fallback_cover)
@@ -209,7 +224,8 @@ public class MusicService extends IntentService implements
                 .addAction(R.drawable.previous, "Previous", prevIntent ) // #0
                 .addAction(middleDrawable, "Pause", middleIntent)  // #1
                 .addAction(R.drawable.next, "Next", nextIntent);     // #2
-        mNotificationManager.notify(NOTIFY_ID,not.build());
+
+        startForeground(NOTIFY_ID, notif.build());
     }
 
     public void setSong(int songIndex){
@@ -248,19 +264,21 @@ public class MusicService extends IntentService implements
                         Log.e("======>", "pausing");
                         middleIntent = playIntent;
                         middleDrawable = R.drawable.play;
-                        not.mActions.set(1,new NotificationCompat.Action(middleDrawable,"Pause",middleIntent));
-                        not.setAutoCancel(true)
+                        notif.mActions.set(1,new NotificationCompat.Action(middleDrawable,"Pause",middleIntent));
+                        notif.setAutoCancel(true)
                            .setOngoing(false);
-                        mNotificationManager.notify(NOTIFY_ID,not.build());
+                        //stopForeground(false);
+                        //mNotificationManager.notify(NOTIFY_ID, notif.build());
+                        startForeground(NOTIFY_ID,notif.build());
                         pausePlayer();
                     } else {
-                        Log.e("-======>","else");
+                        Log.e("=======>","else");
                         middleIntent = pauseIntent;
                         middleDrawable = R.drawable.pause;
-                        not.mActions.set(1,new NotificationCompat.Action(middleDrawable,"Pause",middleIntent));
-                        not.setOngoing(true)
+                        notif.mActions.set(1,new NotificationCompat.Action(middleDrawable,"Pause",middleIntent));
+                        notif.setOngoing(true)
                            .setAutoCancel(false);
-                        mNotificationManager.notify(NOTIFY_ID,not.build());
+                        startForeground(NOTIFY_ID, notif.build());
                         start();
                     }
                 }
@@ -272,6 +290,8 @@ public class MusicService extends IntentService implements
 
     @Override
     public void onDestroy() {
+        player.release();
+        Log.e("======>","Service is Destroyed");
         mNotificationManager.cancel(NOTIFY_ID);
     }
 

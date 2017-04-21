@@ -35,6 +35,11 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     private ArrayList<Song> songList;
     private ListView songView;
+
+    public MusicService getMusicSrv() {
+        return musicSrv;
+    }
+
     private MusicService musicSrv;
     private Intent playIntent;
     private boolean musicBound=false;
@@ -65,7 +70,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
         TrackAdapter songAdt = new TrackAdapter(this,this, songList);
         songView.setAdapter(songAdt);
-        setController();
+        playIntent = new Intent(this, MusicService.class);
+        startService(playIntent);
     }
 
     @Override
@@ -79,11 +85,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     @Override
     protected void onStart() {
         super.onStart();
-        if (playIntent == null) {
-            playIntent = new Intent(this, MusicService.class);
             bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
-            startService(playIntent);
-        }
         Log.e("=========>", "OnStart");
     }
 
@@ -99,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            musicSrv = null;
             musicBound = false;
         }
     };
@@ -106,7 +109,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     public void songPicked(View view){
         musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
         if(playbackPaused){
-            setController();
             controller.show(0);
             playbackPaused=false;
         }
@@ -132,7 +134,9 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 musicSrv.setShuffle();
                 break;
             case R.id.action_end:
-                stopService(playIntent);
+                if(musicConnection != null){
+                    unbindService(musicConnection);
+                }
                 musicSrv=null;
                 System.exit(0);
                 break;
@@ -161,40 +165,18 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         }
     }
 
-    public void setController(){
-        controller = new MusicController(this);
-        controller.setPrevNextListeners(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playNext();
-            }
-        }, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playPrev();
-            }
-        });
-        controller.setMediaPlayer(this);
-        controller.setAnchorView(findViewById(R.id.song_list));
-        controller.setEnabled(true);
-    }
-
     public void playNext(){
         musicSrv.playNext();
         if(playbackPaused){
-            setController();
             playbackPaused=false;
         }
-        controller.show(0);
     }
 
     public void playPrev(){
         musicSrv.playPrev();
         if(playbackPaused){
-            setController();
             playbackPaused=false;
         }
-        controller.show(0);
     }
 
     @Override
@@ -209,7 +191,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         Log.e("========>","onResume");
         super.onResume();
         if(paused){
-            setController();
             paused=false;
         }
     }
@@ -217,9 +198,10 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     @Override
     protected void onDestroy() {
         Log.e("=========>","onDestroy");
+        if(musicSrv!= null && !musicSrv.isPlaying()){
+            musicSrv.stopSelf();
+        }
         unbindService(musicConnection);
-        stopService(playIntent);
-        musicSrv=null;
         super.onDestroy();
     }
 
@@ -265,24 +247,24 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         return false;
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        if( intent.getStringExtra("action") != null ) {
-            if (intent.getStringExtra("action").equals("prev")) {
-                playPrev();
-            } else {
-                if (intent.getStringExtra("action").equals("next")) {
-                    playNext();
-                } else {
-                        pause();
-                }
-            }
-            moveTaskToBack(true);
-        } else {
-            Log.e("=======>","action is null");
-            super.onNewIntent(intent);
-        }
-    }
+//    @Override
+//    protected void onNewIntent(Intent intent) {
+//        if( intent.getStringExtra("action") != null ) {
+//            if (intent.getStringExtra("action").equals("prev")) {
+//                playPrev();
+//            } else {
+//                if (intent.getStringExtra("action").equals("next")) {
+//                    playNext();
+//                } else {
+//                        pause();
+//                }
+//            }
+//            moveTaskToBack(true);
+//        } else {
+//            Log.e("=======>","action is null");
+//            super.onNewIntent(intent);
+//        }
+//    }
 
     @Override
     public int getBufferPercentage() {

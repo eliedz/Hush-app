@@ -58,6 +58,8 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
         mPlay.setOnClickListener(this);
         mBack.setOnClickListener(this);
         mPause.setOnClickListener(this);
+        mNext.setOnClickListener(this);
+        mPrev.setOnClickListener(this);
 
         return v;
     }
@@ -73,6 +75,18 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
             case R.id.play:
                 Log.e("=========>","play Clicked");
                 togglePlay();
+                break;
+            case R.id.next:
+                Log.e("======>","next Clicked");
+                ((MainActivity)getActivity()).playNext();
+                mSongArtist.setText(((MainActivity) getActivity()).getMusicSrv().getSongArtist());
+                mSongTitle.setText(((MainActivity) getActivity()).getMusicSrv().getSongTitle());
+                break;
+            case R.id.prev:
+                Log.e("=======>","prev Clicked");
+                ((MainActivity)getActivity()).playPrev();
+                mSongArtist.setText(((MainActivity) getActivity()).getMusicSrv().getSongArtist());
+                mSongTitle.setText(((MainActivity) getActivity()).getMusicSrv().getSongTitle());
                 break;
             case R.id.hide_button:
                 getFragmentManager().popBackStackImmediate();
@@ -102,4 +116,23 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
             ((MainActivity)getActivity()).pause();
         }
     }
+
+   // @Override
+//    protected void onNewIntent(Intent intent) {
+//        if( intent.getStringExtra("action") != null ) {
+//            if (intent.getStringExtra("action").equals("prev")) {
+//                playPrev();
+//            } else {
+//                if (intent.getStringExtra("action").equals("next")) {
+//                    playNext();
+//                } else {
+//                        pause();
+//                }
+//            }
+//            moveTaskToBack(true);
+//        } else {
+//            Log.e("=======>","action is null");
+//            super.onNewIntent(intent);
+//        }
+//    }
 }
