@@ -181,9 +181,8 @@ public class MusicService extends IntentService implements
                     newSong=rand.nextInt(songs.size());
                 }
                 songList.addLast(new SongListElement(newSong));
-            } else {
-                queuePos++;
             }
+                queuePos++;
         } else {
             songList.set(queuePos,new SongListElement((songList.get(queuePos).getSongID() >= songs.size() ? 0 : songList.get(queuePos).getSongID()+1 )));
         }
