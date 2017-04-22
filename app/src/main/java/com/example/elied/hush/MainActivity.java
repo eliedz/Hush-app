@@ -1,6 +1,8 @@
 package com.example.elied.hush;
 
 import android.Manifest;
+import android.animation.Animator;
+import android.animation.TimeInterpolator;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -118,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         fr.setArguments(args); // set data bundle as an argument for fragment
         FragmentManager fm = instance.getFragmentManager(); // get fragment manager
         FragmentTransaction fragmentTransaction = fm.beginTransaction(); // create a new transaction to a fragment
+        fragmentTransaction.setCustomAnimations(R.anim.slide_in,R.anim.slide_out,R.anim.slide_in,R.anim.slide_out);
         fragmentTransaction.replace(R.id.fragment_place, fr); // allocate a frame layout for fragment to reside in
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit(); // apply changes
