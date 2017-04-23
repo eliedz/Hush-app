@@ -8,7 +8,7 @@
     <string name="prev">&lt;&lt;</string>
     <string name="playlist"> <u> Very Long Playlist Name </u> </string>
     <string name="play">!></string>
-    <string name="topText">All Songs</string>
+    <string name="topText">Hush!</string>
     <string name="search_hint">Enter Song Title</string>
 
     <!-- TODO: Remove or change this placeholder text -->

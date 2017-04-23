@@ -225,7 +225,7 @@ public class MusicService extends IntentService implements
         notif = new NotificationCompat.Builder(this)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setContentIntent(pendIntent)
-                .setSmallIcon(R.drawable.fallback_cover)
+                .setSmallIcon(R.drawable.ic_stat_h)
                 .setLargeIcon(BitmapFactory.decodeResource(this.getApplicationContext().getResources(),
                         R.drawable.fallback_cover))
                 .setTicker(songTitle)
