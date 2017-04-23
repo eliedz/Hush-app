@@ -153,14 +153,14 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             case R.id.action_shuffle:
                 musicSrv.setShuffle();
                 break;
-            case R.id.action_end:
-                if(musicConnection != null){
-                    unbindService(musicConnection);
-                    musicSrv.setBoundActivity(null);
-                }
-                musicSrv=null;
-                System.exit(0);
-                break;
+//            case R.id.action_end:
+//                if(musicConnection != null){
+//                    unbindService(musicConnection);
+//                    musicSrv.setBoundActivity(null);
+//                }
+//                musicSrv=null;
+//                System.exit(0);
+//                break;
         }
         return super.onOptionsItemSelected(item);
     }
