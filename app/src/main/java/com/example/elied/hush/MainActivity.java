@@ -7,11 +7,15 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.SearchManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Debug;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.content.ContentResolver;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -51,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     private MusicController controller;
     private boolean paused=false, playbackPaused=false;
     private Activity instance;
+    private boolean searchPerformed = true;
 
 
     @Override
@@ -58,18 +63,14 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         instance = this;
-        songList = new ArrayList<Song>();
         songView = (ListView)findViewById(R.id.song_list);
+        songList = new ArrayList<Song>();
         Dexter.withActivity(this)
         .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
         .withListener(new PermissionListener() {
             @Override public void onPermissionGranted(PermissionGrantedResponse response) {
                 getSongList();
-                Collections.sort(songList, new Comparator<Song>(){
-                    public int compare(Song a, Song b){
-                        return a.getTitle().compareTo(b.getTitle());
-                    }
-                });}
+                }
             @Override public void onPermissionDenied(PermissionDeniedResponse response) {/* ... */}
             @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {/* ... */}
         }).check();
@@ -133,6 +134,11 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         }
         musicSrv.playSong();
         inflateFragment(currentSong);
+        if(searchPerformed){
+            Log.e("=====>","searchperformed is true");
+        }
+        getSongList();
+        searchPerformed = false;
     }
 
     public void addToPlaylist(View view){
@@ -140,10 +146,42 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(final Menu menu) {
 
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.search).getActionView();
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                searchPerformed = true;
+                getSongList(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+
+                return false;
+            }
+        });
+        MenuItemCompat.setOnActionExpandListener(menu.findItem(R.id.search),new MenuItemCompat.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                getSongList();
+                return true;       // Return true to collapse action view
+            }
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+
+                return true;      // Return true to expand action view
+            }
+        });
         return true;
     }
 
@@ -153,19 +191,22 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             case R.id.action_shuffle:
                 musicSrv.setShuffle();
                 break;
-//            case R.id.action_end:
-//                if(musicConnection != null){
-//                    unbindService(musicConnection);
-//                    musicSrv.setBoundActivity(null);
-//                }
-//                musicSrv=null;
-//                System.exit(0);
-//                break;
         }
         return super.onOptionsItemSelected(item);
     }
 
     public void getSongList(){
+
+        getSongList(null);
+    }
+
+    public void getSongList(String searchQuery){
+        if(!searchPerformed){
+            Log.e("=======>","searchPerformed is false");
+            return;
+        }
+        Log.e("======>","searchPerformed is true");
+        songList.clear();
         ContentResolver musicResolver = getContentResolver();
         Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
@@ -180,10 +221,21 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 long thisId = musicCursor.getLong(idColumn);
                 String thisTitle = musicCursor.getString(titleColumn);
                 String thisArtist = musicCursor.getString(artistColumn);
-                songList.add(new Song(thisId, thisTitle, thisArtist));
+                if(searchQuery != null ){
+                    if(org.apache.commons.lang3.StringUtils.containsIgnoreCase(thisTitle, searchQuery)) {
+                        songList.add(new Song(thisId, thisTitle, thisArtist));
+                    }
+                } else {
+                    songList.add(new Song(thisId, thisTitle, thisArtist));
+                }
             }
             while (musicCursor.moveToNext());
         }
+        Collections.sort(songList, new Comparator<Song>(){
+            public int compare(Song a, Song b){
+                return a.getTitle().compareTo(b.getTitle());
+            }
+        });
     }
 
     public void playNext(){

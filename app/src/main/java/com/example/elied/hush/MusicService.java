@@ -213,6 +213,10 @@ public class MusicService extends IntentService implements
         playInt.putExtra("action","play");
         playIntent = PendingIntent.getService(this,1,playInt,PendingIntent.FLAG_UPDATE_CURRENT);
 
+        Intent deleteInt = new Intent(this,MusicService.class);
+        deleteInt.putExtra("action","delete");
+        PendingIntent deleteIntent = PendingIntent.getService(this,6,deleteInt,PendingIntent.FLAG_UPDATE_CURRENT);
+
         middleIntent = pauseIntent;
         middleDrawable = R.drawable.pause;
 
@@ -225,9 +229,10 @@ public class MusicService extends IntentService implements
                 .setOnlyAlertOnce(true)
                 .setContentTitle(songTitle)
                 .setContentText(songArtist)
-                .addAction(R.drawable.previous, "Previous", prevIntent ) // #0
-                .addAction(middleDrawable, "Pause", middleIntent)  // #1
-                .addAction(R.drawable.next, "Next", nextIntent);     // #2
+                .addAction(R.drawable.previous, "Previous", prevIntent )     // #0
+                .addAction(middleDrawable, "Pause", middleIntent)           // #1
+                .addAction(R.drawable.next, "Next", nextIntent)            // #2
+                .setDeleteIntent(deleteIntent);
         startForeground(NOTIFY_ID, notif.build());
     }
 
@@ -274,10 +279,13 @@ public class MusicService extends IntentService implements
                         notifIntent.putExtra("playing",false);
                         pausePlayer();
                     } else {
-                        Log.e("=======>","else");
-                        //((MainActivity)boundActivity).notificationPlay();
-                        notifIntent.putExtra("playing",true);
-                        start();
+                        if(intent.getStringExtra("action").equals("play")) {
+                            //((MainActivity)boundActivity).notificationPlay();
+                            notifIntent.putExtra("playing", true);
+                            start();
+                        } else {
+                            stopSelf();
+                        }
                     }
                 }
             }
