@@ -221,9 +221,10 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         Log.e("=========>","onDestroy");
         if(musicSrv!= null && !musicSrv.isPlaying()){
             musicSrv.stopSelf();
+        } else {
+            musicSrv.setBoundActivity(null);
         }
         unbindService(musicConnection);
-        musicSrv.setBoundActivity(null);
         super.onDestroy();
     }
 
@@ -263,24 +264,12 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     @Override
     public boolean isPlaying() {
-        if(musicBound && musicSrv!= null){
+        if(musicBound && musicSrv!= null) {
             return musicSrv.isPlaying();
         }
         return false;
     }
 
-    public void notificationPause(){
-        if(instance.getFragmentManager().findFragmentById(R.id.fragment_place) != null) {
-            ((DisplaySongFragment) instance.getFragmentManager().findFragmentById(R.id.fragment_place)).syncButtons(false);
-        }
-    }
-
-    public void notificationPlay(){
-        if(instance.getFragmentManager().findFragmentById(R.id.fragment_place) != null) {
-            ((DisplaySongFragment) instance.getFragmentManager().findFragmentById(R.id.fragment_place)).syncButtons(true);
-            ((DisplaySongFragment) instance.getFragmentManager().findFragmentById(R.id.fragment_place)).updateSong();
-        }
-    }
 
 
 

@@ -1,8 +1,14 @@
 package com.example.elied.hush;
 
 
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +31,9 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
     private ImageButton mPlay;
     private ImageButton mPrev;
     private ImageButton mNext;
-    private boolean fragmentStart = true;
+    private BroadcastReceiver br;
+    private Context currContext;
+    private PendingIntent pi;
 
 
 
@@ -41,6 +49,15 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
         if(getArguments()!=null){
             mSong = (Song) getArguments().getSerializable("song"); //takes everything that's for the song
         }
+
+        br = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent i)
+            {
+                updateSong();
+                syncButtons(i.getBooleanExtra("playing",true));
+            }
+        };
 
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_display_song, container, false);
@@ -63,6 +80,14 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
 
         return v;
     }
+
+    @Override
+    public void onAttach(Context context)
+    {
+        super.onAttach(context);
+        currContext = context;
+    }
+
 
 
     @Override
@@ -133,17 +158,15 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
     @Override
     public void onResume(){
         super.onResume();
+        LocalBroadcastManager.getInstance(currContext).registerReceiver(br, new IntentFilter("UPDATE_PLAYER"));
         Log.e("=====>","Fragment Resume");
-        if(!fragmentStart) {
-            updateSong();
-            if (((MainActivity) getActivity()).getMusicSrv().isPlaying()) {
-                syncButtons(true);
-            } else {
-                syncButtons(false
-                );
-            }
-        }
-        fragmentStart = false;
+    }
+
+    @Override
+    public void onPause(){
+        Log.e("======>","Fragment Pause");
+        LocalBroadcastManager.getInstance(currContext).unregisterReceiver(br);
+        super.onPause();
     }
 
    // @Override

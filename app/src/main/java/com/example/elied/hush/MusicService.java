@@ -16,6 +16,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import java.util.LinkedList;
@@ -168,7 +169,7 @@ public class MusicService extends IntentService implements
                 queuePos--;
             }
         } else {
-            songList.set(queuePos,new SongListElement((songList.get(queuePos).getSongID() < 0 ? songs.size()-1 : songList.get(queuePos).getSongID()-1 )));
+            songList.set(queuePos,new SongListElement((songList.get(queuePos).getSongID() == 0 ? songs.size()-1 : songList.get(queuePos).getSongID()-1 )));
         }
         playSong();
     }
@@ -184,7 +185,7 @@ public class MusicService extends IntentService implements
             }
                 queuePos++;
         } else {
-            songList.set(queuePos,new SongListElement((songList.get(queuePos).getSongID() >= songs.size() ? 0 : songList.get(queuePos).getSongID()+1 )));
+            songList.set(queuePos,new SongListElement((songList.get(queuePos).getSongID() == songs.size()-1 ? 0 : songList.get(queuePos).getSongID()+1 )));
         }
         playSong();
     }
@@ -253,28 +254,34 @@ public class MusicService extends IntentService implements
 
     @Override
     public void onHandleIntent(Intent intent) {
+        Intent notifIntent = new Intent("UPDATE_PLAYER");
         if( intent.getStringExtra("action") != null ) {
             if (intent.getStringExtra("action").equals("prev")) {
                 Log.e("======>","playing Prev");
+                notifIntent.putExtra("playing",true);
                 //((MainActivity)boundActivity).notificationPlay();
                 playPrev();
             } else {
                 if (intent.getStringExtra("action").equals("next")) {
                     Log.e("======>","playing Next");
                     //((MainActivity)boundActivity).notificationPlay();
+                    notifIntent.putExtra("playing",true);
                     playNext();
                 } else {
                     if(intent.getStringExtra("action").equals("pause")) {
                         Log.e("======>", "pausing");
                         //((MainActivity)boundActivity).notificationPause();
+                        notifIntent.putExtra("playing",false);
                         pausePlayer();
                     } else {
                         Log.e("=======>","else");
                         //((MainActivity)boundActivity).notificationPlay();
+                        notifIntent.putExtra("playing",true);
                         start();
                     }
                 }
             }
+            LocalBroadcastManager.getInstance(this).sendBroadcast(notifIntent);
         } else {
             Log.e("=======>","action is null");
         }
