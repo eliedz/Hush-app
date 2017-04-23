@@ -4,6 +4,7 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="60dp"
+    android:background="#EF8F90"
     android:padding="5dp">
 
     <ImageView
@@ -18,6 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:padding="5dp">
+
             <TextView
                 android:id="@+id/song_title"
                 android:layout_width="220dp"
@@ -25,7 +27,7 @@
                 android:fontFamily="sans-serif-condensed"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textColor="@android:color/black"
+                android:textColor="@android:color/white"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:text="@string/Test_Song_Name" />
@@ -34,7 +36,7 @@
                 android:id="@+id/add_to_playlist"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:textColor="@android:color/black"
+                android:textColor="@android:color/white"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"
                 android:layout_centerHorizontal="true"
@@ -58,7 +60,7 @@
                 android:maxLines="1"
                 android:textStyle="italic"
                 android:fontFamily="sans-serif-condensed"
-                android:textColor="?android:attr/textColorSecondary"
+                android:textColor="@color/white"
                 android:textSize="18sp"
                 android:text="@string/Test_Artist_Name" />
             </RelativeLayout>

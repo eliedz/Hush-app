@@ -2,13 +2,14 @@
 <FrameLayout android:id="@+id/fragment_place"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
+    android:background="#EF8F90"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height= "match_parent"
     android:orientation="vertical"
-    android:background="@android:color/darker_gray"
+    android:background="#EF8F90"
     tools:context=".MainActivity" >
 
     <!-- song list -->
