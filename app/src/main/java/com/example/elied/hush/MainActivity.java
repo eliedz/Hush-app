@@ -8,9 +8,13 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.SearchManager;
+import android.content.ContentUris;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Debug;
+import android.provider.MediaStore;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -36,9 +40,13 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+
+import static android.R.attr.bitmap;
 
 public class MainActivity extends AppCompatActivity implements MediaPlayerControl {
 
@@ -217,10 +225,28 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                     (android.provider.MediaStore.Audio.Media._ID);
             int artistColumn = musicCursor.getColumnIndex
                     (android.provider.MediaStore.Audio.Media.ARTIST);
+            // For Album Art
+//            int albumIDColumn = musicCursor.getColumnIndex
+//                    (MediaStore.Audio.Media.ALBUM_ID);
+//            Uri sArtworkUri = Uri
+//                    .parse("content://media/external/audio/albumart");
+//            Uri albumArtUri = ContentUris.withAppendedId(sArtworkUri, albumIDColumn);
+//
+//            try {
+//                albumArt = MediaStore.Images.Media.getBitmap(
+//                        musicResolver, albumArtUri);
+//            } catch (FileNotFoundException exception) {
+//                exception.printStackTrace();
+//                albumArt = fallbackCover;
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
             do {
                 long thisId = musicCursor.getLong(idColumn);
                 String thisTitle = musicCursor.getString(titleColumn);
                 String thisArtist = musicCursor.getString(artistColumn);
+                Bitmap albumArt = null;
+
                 if(searchQuery != null ){
                     if(org.apache.commons.lang3.StringUtils.containsIgnoreCase(thisTitle, searchQuery)) {
                         songList.add(new Song(thisId, thisTitle, thisArtist));

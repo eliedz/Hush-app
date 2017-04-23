@@ -9,6 +9,8 @@ import android.app.NotificationManager;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -224,6 +226,8 @@ public class MusicService extends IntentService implements
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setContentIntent(pendIntent)
                 .setSmallIcon(R.drawable.fallback_cover)
+                .setLargeIcon(BitmapFactory.decodeResource(this.getApplicationContext().getResources(),
+                        R.drawable.fallback_cover))
                 .setTicker(songTitle)
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)

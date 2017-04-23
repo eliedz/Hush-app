@@ -134,19 +134,10 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
     public void syncButtons(boolean play){
         if(play){
             mPause.setVisibility(View.VISIBLE);
-            mPlay.setVisibility(View.GONE);
-            // Change alignment to newly visible icon
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)mNext.getLayoutParams();
-            params.addRule(RelativeLayout.ALIGN_BOTTOM,R.id.pause);
-            params.addRule(RelativeLayout.ALIGN_BASELINE,R.id.pause);
-            mNext.setLayoutParams(params);
+            mPlay.setVisibility(View.INVISIBLE);
         } else {
-            mPause.setVisibility(View.GONE);
+            mPause.setVisibility(View.INVISIBLE);
             mPlay.setVisibility(View.VISIBLE);
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)mNext.getLayoutParams();
-            params.addRule(RelativeLayout.ALIGN_BOTTOM,R.id.play);
-            params.addRule(RelativeLayout.ALIGN_BASELINE,R.id.play);
-            mNext.setLayoutParams(params);
         }
     }
 

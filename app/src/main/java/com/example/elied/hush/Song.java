@@ -1,5 +1,7 @@
 package com.example.elied.hush;
 
+import android.graphics.Bitmap;
+
 import java.io.Serializable;
 
 public class Song implements Serializable {
