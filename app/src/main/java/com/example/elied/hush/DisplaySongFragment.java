@@ -1,6 +1,10 @@
 package com.example.elied.hush;
 
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,9 +17,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.gelitenight.waveview.library.WaveView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -34,7 +45,8 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
     private BroadcastReceiver br;
     private Context currContext;
     private PendingIntent pi;
-
+    private WaveView mWave;
+    private WaveHelper mWaveHelper;
 
 
 
@@ -71,7 +83,9 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
         mBack = (ImageButton) v.findViewById(R.id.hide_button);
         mPrev = (ImageButton) v.findViewById(R.id.prev);
         mNext = (ImageButton) v.findViewById(R.id.next);
-
+        mWave = (WaveView) v.findViewById(R.id.wave);
+        mWaveHelper = new WaveHelper(mWave);
+        mWaveHelper.start();
         mPlay.setOnClickListener(this);
         mBack.setOnClickListener(this);
         mPause.setOnClickListener(this);
@@ -124,10 +138,12 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
         if(!((MainActivity)getActivity()).isPlaying()) {
             Log.e("============>","isPlaying false");
             syncButtons(true);
+            mWaveHelper.start();
             ((MainActivity)getActivity()).start();
         } else {
             syncButtons(false);
             ((MainActivity)getActivity()).pause();
+            mWaveHelper.start();
         }
     }
 
@@ -160,7 +176,7 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
         super.onPause();
     }
 
-   // @Override
+       // @Override
 //    protected void onNewIntent(Intent intent) {
 //        if( intent.getStringExtra("action") != null ) {
 //            if (intent.getStringExtra("action").equals("prev")) {
