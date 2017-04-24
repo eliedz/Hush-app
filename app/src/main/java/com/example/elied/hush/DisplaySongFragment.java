@@ -10,8 +10,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,6 +26,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.gelitenight.waveview.library.WaveView;
+import com.jesusm.holocircleseekbar.lib.HoloCircleSeekBar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +50,7 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
     private PendingIntent pi;
     private WaveView mWave;
     private WaveHelper mWaveHelper;
+    private HoloCircleSeekBar circleSeekBar;
 
 
 
@@ -78,6 +82,7 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
         mSongArtist.setText(mSong.getArtist());
         mSongTitle.setText(mSong.getTitle());
 
+
         mPause = (ImageButton)v.findViewById(R.id.pause);
         mPlay = (ImageButton) v.findViewById(R.id.play);
         mBack = (ImageButton) v.findViewById(R.id.hide_button);
@@ -86,6 +91,25 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
         mWave = (WaveView) v.findViewById(R.id.wave);
         mWaveHelper = new WaveHelper(mWave);
         mWaveHelper.start();
+        circleSeekBar = (HoloCircleSeekBar) v.findViewById(R.id.picker);
+        circleSeekBar.setMax(((MainActivity) getActivity()).getMusicSrv().getDur());
+        circleSeekBar.setOnSeekBarChangeListener(new HoloCircleSeekBar.OnCircleSeekBarChangeListener() {
+
+            public void onProgressChanged(HoloCircleSeekBar seekBar, int progress, boolean fromUser) {
+                // do your work.
+                Log.d("CP", "progress="+progress);
+            }
+
+            public void onStartTrackingTouch(HoloCircleSeekBar bar){
+
+            }
+
+            public void onStopTrackingTouch(HoloCircleSeekBar bar){
+                Log.e("======>",circleSeekBar.getValue() + "");
+                ((MainActivity)getActivity()).getMusicSrv().seek(circleSeekBar.getValue());
+            }
+        });
+        seekbarProgress();
         mPlay.setOnClickListener(this);
         mBack.setOnClickListener(this);
         mPause.setOnClickListener(this);
@@ -119,12 +143,14 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
                 Log.e("======>","next Clicked");
                 ((MainActivity)getActivity()).playNext();
                 updateSong();
+                seekbarProgress();
                 syncButtons(true);
                 break;
             case R.id.prev:
                 Log.e("=======>","prev Clicked");
                 ((MainActivity)getActivity()).playPrev();
                 updateSong();
+                seekbarProgress();
                 syncButtons(true);
                 break;
             case R.id.hide_button:
@@ -158,8 +184,12 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
     }
 
     public void updateSong(){
+        circleSeekBar.setValue(0);
         mSongArtist.setText(((MainActivity) getActivity()).getMusicSrv().getSongArtist());
         mSongTitle.setText(((MainActivity) getActivity()).getMusicSrv().getSongTitle());
+        if(((MainActivity) getActivity()).getMusicSrv().isPrepared()) {
+            circleSeekBar.setMax(((MainActivity) getActivity()).getMusicSrv().getDur());
+        }
     }
 
     @Override
@@ -174,6 +204,23 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
         Log.e("======>","Fragment Pause");
         LocalBroadcastManager.getInstance(currContext).unregisterReceiver(br);
         super.onPause();
+    }
+
+    public void seekbarProgress(){
+        final Handler mHandler = new Handler();
+
+        getActivity().runOnUiThread(new Runnable() {
+            private MediaPlayer play = ((MainActivity) getActivity()).getMusicSrv().getPlayer();
+
+            @Override
+            public void run() {
+                if( play != null){
+                    int mCurrentPosition = play.getCurrentPosition();
+                    circleSeekBar.setValue(mCurrentPosition);
+                }
+                mHandler.postDelayed(this, 1000);
+            }
+        });
     }
 
        // @Override

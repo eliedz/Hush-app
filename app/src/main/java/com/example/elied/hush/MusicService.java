@@ -33,6 +33,11 @@ public class MusicService extends IntentService implements
     private int queuePos;
     private LinkedList<SongListElement> songList;
     private ArrayList<Song> songs;
+
+    public MediaPlayer getPlayer() {
+        return player;
+    }
+
     private MediaPlayer player;
     private final IBinder musicBind = new MusicBinder();
     private boolean shuffle=false;
@@ -53,6 +58,12 @@ public class MusicService extends IntentService implements
     private PendingIntent pauseIntent, playIntent, middleIntent;
     private int middleDrawable;
     NotificationManager mNotificationManager;
+
+    public boolean isPrepared() {
+        return isPrepared;
+    }
+
+    private boolean isPrepared = false;
 
     private Activity boundActivity;
 
@@ -116,6 +127,7 @@ public class MusicService extends IntentService implements
     }
 
     public void playSong(){
+        isPrepared = false;
         player.reset();
         Song playSong = songs.get(songList.get(queuePos).getSongID());
         long currSong = playSong.getID();
@@ -194,6 +206,7 @@ public class MusicService extends IntentService implements
 
     @Override
     public void onPrepared(MediaPlayer mp) {
+        isPrepared = true;
         mp.start();
 
         Intent notIntent = new Intent(this, MainActivity.class);
@@ -248,6 +261,7 @@ public class MusicService extends IntentService implements
 
     @Override
     public boolean onError(MediaPlayer media, int x, int y) {
+        isPrepared = false;
         media.reset();
         return false;
     }
@@ -256,6 +270,7 @@ public class MusicService extends IntentService implements
     public void onCompletion(MediaPlayer media){
         if(player.getCurrentPosition()  == 0){
             Log.e("=======>","onCompletion");
+            isPrepared=false;
             media.reset();
             playNext();
         }

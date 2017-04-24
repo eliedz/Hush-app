@@ -32,3 +32,13 @@ dependencies {
     compile 'de.hdodenhof:circleimageview:2.1.0'
     compile 'com.gelitenight.waveview:waveview:1.0.0'
 }
+
+repositories {
+    maven {
+        url "https://jitpack.io"
+    }
+}
+
+dependencies {
+    compile 'com.github.JesusM:HoloCircleSeekBar:v2.2.2'
+}
