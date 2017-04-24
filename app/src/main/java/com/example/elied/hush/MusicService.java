@@ -9,6 +9,7 @@ import android.app.NotificationManager;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
@@ -31,6 +32,7 @@ public class MusicService extends IntentService implements
         MediaPlayer.OnCompletionListener {
 
     private int queuePos;
+    private long currSongID;
     private LinkedList<SongListElement> songList;
     private ArrayList<Song> songs;
 
@@ -107,6 +109,8 @@ public class MusicService extends IntentService implements
 
     public void setList(ArrayList<Song> theSongs){
         songs=theSongs;
+        songTitle = songs.get(0).getTitle();
+        songArtist = songs.get(0).getArtist();
     }
 
     public class MusicBinder extends Binder {
@@ -129,13 +133,14 @@ public class MusicService extends IntentService implements
     public void playSong(){
         isPrepared = false;
         player.reset();
+        Log.e("=====>",queuePos+"");
         Song playSong = songs.get(songList.get(queuePos).getSongID());
-        long currSong = playSong.getID();
+        currSongID = playSong.getID();
         songTitle = playSong.getTitle();
         songArtist = playSong.getArtist();
         Uri trackUri = ContentUris.withAppendedId(
                 android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                currSong);
+                currSongID);
         try{
             player.setDataSource(getApplicationContext(), trackUri);
         }
@@ -167,8 +172,8 @@ public class MusicService extends IntentService implements
     }
 
     public void start(){
-        syncButtons(true);
         player.start();
+        syncButtons(true);
     }
 
     public void playPrev(){
@@ -255,10 +260,10 @@ public class MusicService extends IntentService implements
         startForeground(NOTIFY_ID, notif.build());
     }
 
-    public void setSong(int songIndex){
+    public void setSong(int songListIndex){
         songList = new LinkedList<SongListElement>();
         queuePos = 0;
-        songList.push(new SongListElement(songIndex));
+        songList.push(new SongListElement(songListIndex));
     }
 
     @Override
@@ -344,6 +349,14 @@ public class MusicService extends IntentService implements
     @Override
     public void onDestroy() {
         player.release();
+        SharedPreferences sp = getSharedPreferences("PLAYER_INFO", MODE_PRIVATE);
+        SharedPreferences.Editor edit = sp.edit();
+        edit.putString("lastPlayedTitle",songTitle);
+        edit.putString("lastPlayedArtist",songArtist);
+        edit.putLong("lastPlayedID",currSongID);
+        edit.apply();
+        Log.e("=====>",songTitle);
+        Log.e("=====>",songArtist);
         Log.e("======>","Service is Destroyed");
         mNotificationManager.cancel(NOTIFY_ID);
     }

@@ -8,13 +8,18 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.SearchManager;
+import android.content.BroadcastReceiver;
 import android.content.ContentUris;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Debug;
 import android.provider.MediaStore;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,6 +28,8 @@ import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.os.IBinder;
 import android.content.ComponentName;
@@ -32,6 +39,7 @@ import android.content.ServiceConnection;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.MediaController.MediaPlayerControl;
+import android.widget.TextView;
 
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
@@ -45,13 +53,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.stream.Collectors;
 
 import static android.R.attr.bitmap;
 
-public class MainActivity extends AppCompatActivity implements MediaPlayerControl {
+public class MainActivity extends AppCompatActivity implements MediaPlayerControl, View.OnClickListener {
 
     private ArrayList<Song> songList;
     private ListView songView;
+    private BroadcastReceiver br;
 
     public MusicService getMusicSrv() {
         return musicSrv;
@@ -63,12 +73,24 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     private MusicController controller;
     private boolean paused=false, playbackPaused=false;
     private Activity instance;
+    private Song currSong;
     private boolean searchPerformed = true;
+
+    public void setFragmentPresent(boolean fragmentPresent) {
+        this.fragmentPresent = fragmentPresent;
+    }
+
+    private boolean fragmentPresent = false;
+    private int songListID;
+    private TextView widgetArtist,widgetTitle;
+    private ImageButton widget_pause,widget_play;
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        SQLiteDatabase mydatabase = openOrCreateDatabase("hushDB",MODE_PRIVATE,null);
         setContentView(R.layout.activity_main);
         instance = this;
         songView = (ListView)findViewById(R.id.song_list);
@@ -85,8 +107,58 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
         TrackAdapter songAdt = new TrackAdapter(this,this, songList);
         songView.setAdapter(songAdt);
+        SharedPreferences sp = getSharedPreferences("PLAYER_INFO", MODE_PRIVATE);
+        String lastPlayedTitle = sp.getString("lastPlayedTitle",songList.get(0).getTitle());
+        String lastPlayedArtist = sp.getString("lastPlayedArtist",songList.get(0).getArtist());
+        final long songID = sp.getLong("lastPlayedID",0);
+        for(int i = 0; i < songList.size();i++){
+            if(songList.get(i).getID() == songID){
+                songListID = i;
+                currSong = songList.get(i);
+                break;
+            }
+        }
+        //currSong = songList.get(songList.indexOf(new Song(songID,lastPlayedTitle,lastPlayedArtist)));
+        widgetTitle = (TextView) findViewById(R.id.song_title);
+        widgetTitle.setText(lastPlayedTitle);
+        widgetArtist = (TextView) findViewById(R.id.song_artist);
+        widgetArtist.setText(lastPlayedArtist);
+        widget_pause = (ImageButton) findViewById(R.id.pause);
+        widget_play = (ImageButton) findViewById(R.id.play);
+        widget_pause.setOnClickListener(this);
+        widget_play.setOnClickListener(this);
+        findViewById(R.id.small_widget).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                musicSrv.setSong(songListID);
+                inflateFragment(currSong);
+            }
+            });
+        br = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent i)
+            {
+                updateSong();
+                syncButtons();
+            }
+        };
         playIntent = new Intent(this, MusicService.class);
         startService(playIntent);
+    }
+
+    public void updateSong(){
+        widgetTitle.setText(musicSrv.getSongTitle());
+        widgetArtist.setText(musicSrv.getSongArtist());
+    }
+
+    public void syncButtons(){
+        if(musicSrv.isPlaying()){
+            widget_play.setVisibility(View.GONE);
+            widget_pause.setVisibility(View.VISIBLE);
+        } else {
+            widget_pause.setVisibility(View.GONE);
+            widget_play.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -135,11 +207,13 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         fragmentTransaction.commit(); // apply changes
     }
 
-    public void songPicked(View view, Song currentSong){
-        musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
+    public void songPicked(int ID, Song currentSong){
+        musicSrv.setSong(ID);
         if(playbackPaused){
             playbackPaused=false;
         }
+        songListID = ID;
+        currSong = currentSong;
         musicSrv.playSong();
         inflateFragment(currentSong);
         if(searchPerformed){
@@ -147,6 +221,10 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         }
         getSongList();
         searchPerformed = false;
+    }
+
+    public void songPicked(View view, Song currentSong){
+        songPicked(Integer.parseInt(view.getTag().toString()),currentSong);
     }
 
     public void addToPlaylist(View view){
@@ -169,6 +247,10 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             public boolean onQueryTextSubmit(String query) {
                 searchPerformed = true;
                 getSongList(query);
+                if (fragmentPresent) {
+                    getFragmentManager().popBackStackImmediate();
+                }
+
                 return false;
             }
 
@@ -186,7 +268,9 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             }
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
-
+                if (fragmentPresent) {
+                    getFragmentManager().popBackStackImmediate();
+                }
                 return true;      // Return true to expand action view
             }
         });
@@ -281,12 +365,14 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     @Override
     protected void onPause(){
         Log.e("========>","onPause");
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(br);
         super.onPause();
         paused=true;
     }
 
     @Override
     protected void onResume(){
+        LocalBroadcastManager.getInstance(this).registerReceiver(br, new IntentFilter("UPDATE_PLAYER"));
         Log.e("========>","onResume");
         super.onResume();
         if(paused){
@@ -394,5 +480,24 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     @Override
     public int getAudioSessionId() {
         return 0;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.pause:
+                Log.e("=========>", "pause Clicked");
+                pause();
+                break;
+            case R.id.play:
+                Log.e("=========>", "play Clicked");
+                musicSrv.setSong(songListID);
+                if(!musicSrv.isPrepared()) {
+                    musicSrv.playSong();
+                } else {
+                    start();
+                }
+                break;
+        }
     }
 }

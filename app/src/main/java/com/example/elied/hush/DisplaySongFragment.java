@@ -115,7 +115,7 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
         mPause.setOnClickListener(this);
         mNext.setOnClickListener(this);
         mPrev.setOnClickListener(this);
-
+        syncButtons(((MainActivity) getActivity()).getMusicSrv().isPlaying());
         return v;
     }
 
@@ -162,8 +162,13 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
         if(!((MainActivity)getActivity()).isPlaying()) {
             Log.e("============>","isPlaying false");
             syncButtons(true);
-            mWaveHelper.start();
-            ((MainActivity)getActivity()).start();
+            if(!((MainActivity) getActivity()).getMusicSrv().isPrepared()) {
+                ((MainActivity) getActivity()).getMusicSrv().playSong();
+            } else {
+                mWaveHelper.start();
+
+                ((MainActivity) getActivity()).start();
+            }
         } else {
             syncButtons(false);
             ((MainActivity)getActivity()).pause();
@@ -193,6 +198,7 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
     @Override
     public void onResume(){
         super.onResume();
+        ((MainActivity)getActivity()).setFragmentPresent(true);
         LocalBroadcastManager.getInstance(currContext).registerReceiver(br, new IntentFilter("UPDATE_PLAYER"));
         Log.e("=====>","Fragment Resume");
     }
@@ -200,6 +206,7 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
     @Override
     public void onPause(){
         Log.e("======>","Fragment Pause");
+        ((MainActivity)getActivity()).setFragmentPresent(false);
         LocalBroadcastManager.getInstance(currContext).unregisterReceiver(br);
         super.onPause();
     }

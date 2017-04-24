@@ -112,7 +112,7 @@
 
                     <ImageButton
                         android:id="@+id/pause"
-                        android:visibility="visible"
+                        android:visibility="invisible"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:layout_centerHorizontal="true"
@@ -120,7 +120,7 @@
                         android:src='@drawable/pause' />
                     <ImageButton
                         android:id="@+id/play"
-                        android:visibility="gone"
+                        android:visibility="visible"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:layout_centerHorizontal="true"
