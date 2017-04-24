@@ -207,6 +207,9 @@ public class MusicService extends IntentService implements
     @Override
     public void onPrepared(MediaPlayer mp) {
         isPrepared = true;
+        Intent progressbarIntent = new Intent("UPDATE_PLAYER");
+        LocalBroadcastManager.getInstance(this).sendBroadcast(progressbarIntent);
+
         mp.start();
 
         Intent notIntent = new Intent(this, MainActivity.class);
@@ -215,7 +218,6 @@ public class MusicService extends IntentService implements
         Intent previousInt = new Intent(this,MusicService.class);
         previousInt.putExtra("action","prev");
         PendingIntent prevIntent = PendingIntent.getService(this,4,previousInt,PendingIntent.FLAG_UPDATE_CURRENT);
-
         Intent nextInt = new Intent(this,MusicService.class);
         nextInt.putExtra("action","next");
         PendingIntent nextIntent = PendingIntent.getService(this,3,nextInt,PendingIntent.FLAG_UPDATE_CURRENT);
@@ -233,7 +235,7 @@ public class MusicService extends IntentService implements
         PendingIntent deleteIntent = PendingIntent.getService(this,6,deleteInt,PendingIntent.FLAG_UPDATE_CURRENT);
 
         middleIntent = pauseIntent;
-        middleDrawable = R.drawable.pause;
+        middleDrawable = R.drawable.ic_pause_notif;
 
         notif = new NotificationCompat.Builder(this)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -246,9 +248,9 @@ public class MusicService extends IntentService implements
                 .setOnlyAlertOnce(true)
                 .setContentTitle(songTitle)
                 .setContentText(songArtist)
-                .addAction(R.drawable.previous, "Previous", prevIntent )     // #0
+                .addAction(R.drawable.ic_skip_previous_notif, "Previous", prevIntent )     // #0
                 .addAction(middleDrawable, "Pause", middleIntent)           // #1
-                .addAction(R.drawable.next, "Next", nextIntent)            // #2
+                .addAction(R.drawable.ic_skip_next_notif, "Next", nextIntent)            // #2
                 .setDeleteIntent(deleteIntent);
         startForeground(NOTIFY_ID, notif.build());
     }
@@ -303,6 +305,7 @@ public class MusicService extends IntentService implements
                             notifIntent.putExtra("playing", true);
                             start();
                         } else {
+                            notifIntent.putExtra("playing",false);
                             stopSelf();
                         }
                     }
@@ -321,15 +324,15 @@ public class MusicService extends IntentService implements
     public void syncButtons(boolean playing){
         if(playing){
             middleIntent = pauseIntent;
-            middleDrawable = R.drawable.pause;
+            middleDrawable = R.drawable.ic_pause_notif;
             notif.mActions.set(1,new NotificationCompat.Action(middleDrawable,"Pause",middleIntent));
             notif.setOngoing(true)
                     .setAutoCancel(false);
             startForeground(NOTIFY_ID, notif.build());
         } else {
             middleIntent = playIntent;
-            middleDrawable = R.drawable.play;
-            notif.mActions.set(1,new NotificationCompat.Action(middleDrawable,"Pause",middleIntent));
+            middleDrawable = R.drawable.ic_play_notif;
+            notif.mActions.set(1,new NotificationCompat.Action(middleDrawable,"Play",middleIntent));
             notif.setAutoCancel(true)
                     .setOngoing(false);
             stopForeground(false);

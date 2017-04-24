@@ -142,14 +142,12 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
             case R.id.next:
                 Log.e("======>","next Clicked");
                 ((MainActivity)getActivity()).playNext();
-                updateSong();
                 seekbarProgress();
                 syncButtons(true);
                 break;
             case R.id.prev:
                 Log.e("=======>","prev Clicked");
                 ((MainActivity)getActivity()).playPrev();
-                updateSong();
                 seekbarProgress();
                 syncButtons(true);
                 break;
