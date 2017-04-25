@@ -51,6 +51,7 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
     private WaveView mWave;
     private WaveHelper mWaveHelper;
     private HoloCircleSeekBar circleSeekBar;
+    private boolean seekerShouldStop = false;
 
 
 
@@ -207,6 +208,7 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
     @Override
     public void onResume(){
         super.onResume();
+        seekerShouldStop = false;
         ((MainActivity)getActivity()).setFragmentPresent(true);
         LocalBroadcastManager.getInstance(currContext).registerReceiver(br, new IntentFilter("UPDATE_PLAYER"));
         Log.e("=====>","Fragment Resume");
@@ -228,7 +230,7 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
 
             @Override
             public void run() {
-                if(play != null){
+                if(play != null && !seekerShouldStop){
                     int mCurrentPosition = play.getCurrentPosition();
                     circleSeekBar.setValue(mCurrentPosition);
                 }
@@ -255,4 +257,11 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
 //            super.onNewIntent(intent);
 //        }
 //    }
+
+
+    @Override
+    public void onDestroy(){
+        seekerShouldStop = true;
+        super.onDestroy();
+    }
 }

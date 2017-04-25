@@ -65,7 +65,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static android.R.attr.bitmap;
 
 public class MainActivity extends AppCompatActivity implements MediaPlayerControl, View.OnClickListener {
 
@@ -171,6 +170,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 inflateFragment(currSong);
             }
             });
+
         br = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent i)
@@ -179,6 +179,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 syncButtons();
             }
         };
+
         playIntent = new Intent(this, MusicService.class);
         startService(playIntent);
     }
