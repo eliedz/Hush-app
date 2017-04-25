@@ -55,11 +55,11 @@
 
             <com.gelitenight.waveview.library.WaveView
                 android:background="@color/colorPrimary"
+                android:visibility="visible"
                 android:id="@+id/wave"
-                android:layout_gravity="center"
-                android:layout_marginBottom="@dimen/activity_horizontal_margin"
-                android:layout_width="900dp"
-                android:layout_height="900dp" />
+                android:layout_gravity="center_horizontal"
+                android:layout_width="500dp"
+                android:layout_height="400dp" />
 
             <RelativeLayout
                 android:orientation="vertical"

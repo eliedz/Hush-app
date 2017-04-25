@@ -95,6 +95,10 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         this.fragmentPresent = fragmentPresent;
     }
 
+    public boolean isFragmentPresent() {
+        return fragmentPresent;
+    }
+
     private boolean fragmentPresent = false;
     private int songListID;
     private TextView widgetArtist,widgetTitle;
@@ -161,7 +165,9 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         findViewById(R.id.small_widget).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                musicSrv.setSong(songListID);
+                if(!musicSrv.isPlaying()) {
+                    musicSrv.setSong(songListID);
+                }
                 inflateFragment(currSong);
             }
             });
@@ -383,6 +389,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             }
         });
     }
+
 
     public void playNext(){
         musicSrv.playNext();

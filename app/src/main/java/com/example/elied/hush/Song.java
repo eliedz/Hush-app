@@ -10,6 +10,16 @@ public class Song implements Serializable {
     private String title;
     private String artist;
 
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    private int position;
+
     public Song(long songID, String songTitle, String songArtist){
         id=songID;
         title=songTitle;

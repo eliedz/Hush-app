@@ -69,6 +69,7 @@ public class MusicService extends IntentService implements
 
     private Activity boundActivity;
 
+
     public MusicService(){
 
         super("MusicService");
@@ -135,6 +136,7 @@ public class MusicService extends IntentService implements
         player.reset();
         Log.e("=====>",queuePos+"");
         Song playSong = songs.get(songList.get(queuePos).getSongID());
+//        Log.e("======>",);
         if(boundActivity != null) {
             ((MainActivity)boundActivity).setCurrSong(playSong);
         }
@@ -200,6 +202,7 @@ public class MusicService extends IntentService implements
     public void playNext(){
         if(shuffle){
             if(queuePos == songList.size()-1){
+                Log.e("======>","HOPE TO NEVER SEE YOU");
                 int newSong = rand.nextInt(songs.size());
                 while(songList.contains(new SongListElement(newSong))){
                     newSong=rand.nextInt(songs.size());
@@ -210,7 +213,19 @@ public class MusicService extends IntentService implements
         } else {
             songList.set(queuePos,new SongListElement((songList.get(queuePos).getSongID() == songs.size()-1 ? 0 : songList.get(queuePos).getSongID()+1 )));
         }
+
         playSong();
+    }
+
+    public void addToQueueu(int position){
+        Log.e("======>",position+" queueuPos is :" + queuePos + " songlist size: "+ songList.size());
+        if(queuePos == songList.size()-1) {
+            songList.addLast(new SongListElement(position));
+        } else {
+            if(queuePos != 0){
+                songList.add(queuePos+1,new SongListElement(position));
+            }
+        }
     }
 
     @Override
@@ -265,7 +280,9 @@ public class MusicService extends IntentService implements
     }
 
     public void setSong(int songListIndex){
-        songList = new LinkedList<SongListElement>();
+        if(songList == null) {
+            songList = new LinkedList<SongListElement>();
+        }
         queuePos = 0;
         songList.push(new SongListElement(songListIndex));
     }

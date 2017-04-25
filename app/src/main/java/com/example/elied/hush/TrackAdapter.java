@@ -12,8 +12,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class TrackAdapter extends android.widget.BaseAdapter {
 
@@ -52,25 +54,28 @@ public class TrackAdapter extends android.widget.BaseAdapter {
         TextView songView = (TextView)songLay.findViewById(R.id.song_title);
         TextView artistView = (TextView)songLay.findViewById(R.id.song_artist);
         final Song currentSong = songs.get(position);
+        currentSong.setPosition(position);
+        Button addToQueue = (Button) songLay.findViewById(R.id.add_to_queue);
         songView.setText(currentSong.getTitle());
         artistView.setText(currentSong.getArtist());
         songLay.setTag(position);
+
+        addToQueue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((MainActivity)activity).getMusicSrv().addToQueueu(currentSong.getPosition());
+                Toast.makeText(context, "Song Added to Shuffle Queue!", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         songLay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ((MainActivity)activity).songPicked(v,currentSong);
-                //((MainActivity)activity).inflateFragment(currentSong);
-//                DisplaySongFragment fr = new DisplaySongFragment(); // create new instance of fragment you want to open
-//                Bundle args = new Bundle(); // create new bundle to pass data to the fragment
-//                args.putSerializable("song", currentSong); // pass desired song into bundle
-//                fr.setArguments(args); // set data bundle as an argument for fragment
-//                FragmentManager fm = activity.getFragmentManager(); // get fragment manager
-//                FragmentTransaction fragmentTransaction = fm.beginTransaction(); // create a new transaction to a fragment
-//                fragmentTransaction.replace(R.id.fragment_place, fr); // allocate a frame layout for fragment to reside in
-//                fragmentTransaction.commit(); // apply changes
+
             }
         });
+
         return songLay;
     }
 

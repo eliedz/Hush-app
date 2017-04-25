@@ -71,7 +71,6 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
             public void onReceive(Context context, Intent i)
             {
                 updateSong();
-
                 syncButtons(i.getBooleanExtra("playing",true));
             }
         };
@@ -91,7 +90,6 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
         mNext = (ImageButton) v.findViewById(R.id.next);
         mWave = (WaveView) v.findViewById(R.id.wave);
         mWaveHelper = new WaveHelper(mWave);
-        mWaveHelper.start();
         circleSeekBar = (HoloCircleSeekBar) v.findViewById(R.id.picker);
         circleSeekBar.setMax(((MainActivity) getActivity()).getMusicSrv().getDur());
         circleSeekBar.setOnSeekBarChangeListener(new HoloCircleSeekBar.OnCircleSeekBarChangeListener() {
@@ -117,8 +115,16 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
         mNext.setOnClickListener(this);
         mPrev.setOnClickListener(this);
         syncButtons(((MainActivity) getActivity()).getMusicSrv().isPlaying());
+//        Handler waveHandle = new Handler();
+//        Runnable startWaves = new Runnable() {
+//            public void run() {
+                mWaveHelper.start();
+//            }
+//        };
+//        waveHandle.postDelayed(startWaves,400);
         return v;
     }
+
 
     @Override
     public void onAttach(Context context)
@@ -169,7 +175,6 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
                 ((MainActivity) getActivity()).getMusicSrv().playSong();
             } else {
                 mWaveHelper.start();
-
                 ((MainActivity) getActivity()).start();
             }
         } else {
@@ -223,7 +228,7 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
 
             @Override
             public void run() {
-                if( play != null){
+                if(play != null){
                     int mCurrentPosition = play.getCurrentPosition();
                     circleSeekBar.setValue(mCurrentPosition);
                 }

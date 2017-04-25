@@ -34,7 +34,8 @@
                 android:text="@string/Test_Song_Name" />
 
             <Button
-                android:id="@+id/add_to_playlist"
+                android:id="@+id/add_to_queue"
+                android:onClick="addToShuffleQueue"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:textColor="@android:color/white"
@@ -45,7 +46,6 @@
                 android:bottomLeftRadius="64dp"
                 android:topRightRadius="64dp"
                 android:topLeftRadius="64dp"
-                android:onClick="addToPlaylist"
                 android:textStyle="bold"
                 android:background="?android:attr/selectableItemBackground"
                 android:textSize="20sp"
