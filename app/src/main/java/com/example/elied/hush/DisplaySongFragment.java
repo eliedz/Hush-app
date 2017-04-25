@@ -175,7 +175,7 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
         } else {
             syncButtons(false);
             ((MainActivity)getActivity()).pause();
-            mWaveHelper.start();
+            mWaveHelper.cancel();
         }
     }
 
