@@ -59,7 +59,7 @@ public class MusicService extends IntentService implements
     private NotificationCompat.Builder notif;
     private PendingIntent pauseIntent, playIntent, middleIntent;
     private int middleDrawable;
-    NotificationManager mNotificationManager;
+    public static NotificationManager mNotificationManager;
 
     public boolean isPrepared() {
         return isPrepared;
@@ -135,6 +135,9 @@ public class MusicService extends IntentService implements
         player.reset();
         Log.e("=====>",queuePos+"");
         Song playSong = songs.get(songList.get(queuePos).getSongID());
+        if(boundActivity != null) {
+            ((MainActivity)boundActivity).setCurrSong(playSong);
+        }
         currSongID = playSong.getID();
         songTitle = playSong.getTitle();
         songArtist = playSong.getArtist();
@@ -190,6 +193,7 @@ public class MusicService extends IntentService implements
         } else {
             songList.set(queuePos,new SongListElement((songList.get(queuePos).getSongID() == 0 ? songs.size()-1 : songList.get(queuePos).getSongID()-1 )));
         }
+
         playSong();
     }
 
@@ -275,12 +279,13 @@ public class MusicService extends IntentService implements
 
     @Override
     public void onCompletion(MediaPlayer media){
-        if(player.getCurrentPosition()  == 0){
             Log.e("=======>","onCompletion");
             isPrepared=false;
             media.reset();
-            playNext();
-        }
+        Intent notifIntent = new Intent("UPDATE_PLAYER");
+        notifIntent.putExtra("playing",true);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(notifIntent);
+        playNext();
     }
 
     @Override

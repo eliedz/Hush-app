@@ -71,6 +71,7 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
             public void onReceive(Context context, Intent i)
             {
                 updateSong();
+
                 syncButtons(i.getBooleanExtra("playing",true));
             }
         };
@@ -162,7 +163,9 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
         if(!((MainActivity)getActivity()).isPlaying()) {
             Log.e("============>","isPlaying false");
             syncButtons(true);
+
             if(!((MainActivity) getActivity()).getMusicSrv().isPrepared()) {
+                ((MainActivity) getActivity()).syncButtons();
                 ((MainActivity) getActivity()).getMusicSrv().playSong();
             } else {
                 mWaveHelper.start();
@@ -187,6 +190,7 @@ public class DisplaySongFragment extends Fragment implements View.OnClickListene
     }
 
     public void updateSong(){
+        ((MainActivity)getActivity()).updateSong();
         circleSeekBar.setValue(0);
         mSongArtist.setText(((MainActivity) getActivity()).getMusicSrv().getSongArtist());
         mSongTitle.setText(((MainActivity) getActivity()).getMusicSrv().getSongTitle());

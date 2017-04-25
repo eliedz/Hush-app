@@ -31,6 +31,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'de.hdodenhof:circleimageview:2.1.0'
     compile 'com.gelitenight.waveview:waveview:1.0.0'
+    compile 'com.lantouzi.wheelview:library:1.1.2'
 }
 
 repositories {
