@@ -1,10 +1,24 @@
 package com.example.elied.hush;
 
-public class Song {
+import android.graphics.Bitmap;
+
+import java.io.Serializable;
+
+public class Song implements Serializable {
 
     private long id;
     private String title;
     private String artist;
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    private int position;
 
     public Song(long songID, String songTitle, String songArtist){
         id=songID;
